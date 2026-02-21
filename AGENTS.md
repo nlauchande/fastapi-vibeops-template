@@ -94,7 +94,9 @@ uv run vibecheck .
 │   ├── integration/          # Integration tests for API endpoints
 │   └── bdd/                  # BDD step definitions (mirrors features/)
 │       └── features/         # Gherkin feature files — one per resource
-├── specs/                    # Feature design docs — always check here first
+├── specs/
+│   ├── adr/                  # Architecture Decision Records
+│   └── openapi.yaml          # API contract (auto-generated or hand-authored)
 ├── vibecheck/                # Vibecheck Score computation library
 ├── experiments/              # MLflow experiment configs and results
 ├── docker/
@@ -169,13 +171,55 @@ When the user says **"change nothing"** or **"design only"**, enter planning mod
 - Output a draft spec or Gherkin scenarios for review
 - Do NOT touch any files until explicitly told to proceed
 
+### Spec Types
+Different concerns live in different spec formats — use the right one:
+
+| What | Format | Location |
+|------|--------|----------|
+| Business behaviour | Gherkin | `tests/bdd/features/` |
+| Technical design | Markdown | `specs/` |
+| Architecture decisions | ADR Markdown | `specs/adr/` |
+| API contract | OpenAPI YAML | `specs/openapi.yaml` |
+| Non-functional requirements | Markdown | `specs/` |
+
+**Gherkin covers:** WHAT the system does from a user perspective — business rules, acceptance criteria, compliance behaviour. Written in plain language a non-technical stakeholder can read and approve.
+
+**specs/ covers:** WHY and HOW decisions were made — data models, architectural choices, performance requirements, security threat model, infrastructure constraints.
+
+**Both must exist for any significant feature.** Gherkin alone is not a complete spec.
+
+### Feature Kickoff Protocol
+When given a new feature name or business spec — even as a short description — automatically follow this protocol without being asked:
+
+1. **Enter design mode immediately** — do not write any code
+2. **Produce two files and nothing else:**
+   - Technical design doc → `specs/[feature].md`
+   - Gherkin scenarios → `tests/bdd/features/[feature].feature`
+3. **specs/[feature].md must contain:**
+   - Data model
+   - API endpoints
+   - Architectural decisions
+   - Any security or compliance considerations
+4. **Gherkin must be in plain business language:**
+   - No Python, no HTTP verbs, no field names in Given/When/Then
+   - Readable by a non-technical stakeholder
+5. **Wait for explicit approval** before creating any other files
+6. Only proceed to implementation when the user says **"proceed"**
+
+This protocol triggers automatically on any message in the form:
+- "New feature: [description]"
+- "Build: [description]"
+- "Implement: [description]"
+- Any plain English business spec provided without a prior design
+
 ### Spec-First Rule
 Before implementing any significant feature:
-1. Check `/specs` for an existing design document
-2. If a spec exists, **generate Gherkin scenarios from it** before writing any code
-3. Gherkin scenarios must be reviewed and approved before proceeding to schemas or implementation
-4. If no spec exists, propose one in plain language, derive Gherkin from it, get approval, then code
-5. Never write a route handler, Pydantic schema, or service method without a corresponding approved Gherkin scenario
+1. Check `/specs` for an existing technical design document
+2. Check `tests/bdd/features/` for existing Gherkin scenarios
+3. If neither exists, trigger the Feature Kickoff Protocol above
+4. If a spec exists, **generate Gherkin scenarios from it** before writing any code
+5. Both the technical spec and Gherkin scenarios must be reviewed and approved before proceeding
+6. Never write a route handler, Pydantic schema, or service method without both approved
 
 ### Checkpointing
 At the end of each completed task:
@@ -213,7 +257,7 @@ When suggesting an update:
 - Minimum coverage target: **80%** for the service layer
 
 ### BDD / Gherkin Rules
-- Feature files live in `tests/bdd/features/` — one file per resource (auth.feature, users.feature)
+- Feature files live in `tests/bdd/features/` — one file per resource (auth.feature, todos.feature)
 - Step definitions live in `tests/bdd/` — mirroring the feature file name
 - Gherkin scenarios are generated from specs, **not from code** — never reverse-engineer scenarios from existing implementation
 - If a spec is ambiguous, surface the ambiguity as a question before writing the scenario — do not resolve ambiguity silently in code
@@ -227,6 +271,7 @@ When suggesting an update:
 ## 8. Code Review Checklist (Agent Self-Review)
 
 Before declaring a task complete, verify:
+- [ ] Technical spec exists in `specs/` for this feature
 - [ ] Gherkin scenario exists and is approved for this feature
 - [ ] No hardcoded secrets, credentials, or environment values
 - [ ] All new endpoints have `response_model` declared
@@ -278,12 +323,14 @@ Before declaring a task complete, verify:
 
 ## 11. Change Log
 
-| Date       | Change                                           | Author         |
-|------------|--------------------------------------------------|----------------|
-| 2025-01-01 | Initial AGENTS.md created                        | Natu Lauchande |
-| 2025-01-15 | Added async SQLAlchemy 2.0 conventions           | Natu Lauchande |
-| 2025-02-01 | Added BDD/Gherkin rules and spec-first workflow  | Natu Lauchande |
-| 2025-02-20 | Added VibeOps principles section                 | Natu Lauchande |
-| 2025-02-20 | Added self-updating protocol                     | Natu Lauchande |
-| 2025-02-21 | Renamed primary file from CLAUDE.md to AGENTS.md | Natu Lauchande |
-| 2025-02-21 | CLAUDE.md is now a symlink to AGENTS.md          | Natu Lauchande |
+| Date       | Change                                                | Author         |
+|------------|-------------------------------------------------------|----------------|
+| 2025-01-01 | Initial AGENTS.md created                             | Natu Lauchande |
+| 2025-01-15 | Added async SQLAlchemy 2.0 conventions                | Natu Lauchande |
+| 2025-02-01 | Added BDD/Gherkin rules and spec-first workflow       | Natu Lauchande |
+| 2025-02-20 | Added VibeOps principles section                      | Natu Lauchande |
+| 2025-02-20 | Added self-updating protocol                          | Natu Lauchande |
+| 2025-02-21 | Renamed primary file from CLAUDE.md to AGENTS.md      | Natu Lauchande |
+| 2025-02-21 | CLAUDE.md is now a symlink to AGENTS.md               | Natu Lauchande |
+| 2025-02-21 | Added spec types table and dual-spec rule             | Natu Lauchande |
+| 2025-02-21 | Replaced feature kickoff prompt with auto protocol    | Natu Lauchande |
