@@ -14,6 +14,17 @@ The `AGENTS.md` file at the root is intentionally comprehensive. It is the prima
 
 ---
 
+## How This Config Was Validated
+
+The configuration in this template is the result of structured experiments tracked in [vibeops-experiments](https://github.com/vibeops-central/vibeops-experiments):
+
+| Config | Experiment | Result |
+|--------|-----------|--------|
+| `AGENTS.md` tribal knowledge (Section 9) | [agents-md-v2](https://github.com/vibeops-central/vibeops-experiments/tree/main/experiments/agents-md-v2) | 15/15 tests, zero manual fixes, 3-iteration feedback loop |
+| `.claude/skills/` modular structure | [skills-modularisation → run 003-native-loading](https://github.com/vibeops-central/vibeops-experiments/tree/main/experiments/skills-modularisation/runs/003-native-loading) | 17/17 tests, VibeOps Score 97.0 |
+
+---
+
 ## What VibeOps Is
 
 VibeOps is the discipline layer on top of AI-assisted development.
@@ -47,7 +58,7 @@ The sections that matter most:
 ### Option 2 — Fork and adapt it
 
 ```bash
-git clone https://github.com/natulauchande/fastapi-vibeops-template
+git clone https://github.com/vibeops-central/fastapi-vibeops-template
 cd fastapi-vibeops-template
 ln -s AGENTS.md CLAUDE.md    # Claude Code compatibility
 cp .env.example .env
@@ -76,11 +87,11 @@ Most templates ship code. This template ships an **environment**.
 The `AGENTS.md` encodes:
 
 ```
-Expert knowledge     → so juniors produce senior-level output
-Hard constraints     → so the agent never violates your standards
-Tribal knowledge     → so past mistakes don't repeat
-Workflow protocols   → so every session starts the same disciplined way
-Self-updating rules  → so the file improves itself from real sessions
+Expert knowledge      → so juniors produce senior-level output
+Hard constraints      → so the agent never violates your standards
+Tribal knowledge      → so past mistakes don't repeat
+Workflow protocols    → so every session starts the same disciplined way
+Self-updating rules   → so the file improves itself from real sessions
 ```
 
 The Vibecheck Score measures how well the environment is working. The higher the score, the smaller the gap between your best engineer and your newest one.
@@ -120,14 +131,14 @@ Every session makes the environment stronger. This is not a file you maintain �
 ## Project Structure
 
 ```
-src/           FastAPI application (layered architecture)
-tests/         Unit, integration, and BDD tests
+src/             FastAPI application (layered architecture)
+tests/           Unit, integration, and BDD tests
 tests/bdd/features/  Gherkin feature files — one per resource
-specs/         Technical design docs and ADRs
-experiments/   MLflow experiment configs (Vibecheck Score tracking)
-vibecheck/     Vibecheck Score computation library (coming Phase 3)
-AGENTS.md      The environment — primary artefact of this repo
-CLAUDE.md      Symlink → AGENTS.md (Claude Code compatibility)
+specs/           Technical design docs and ADRs
+.claude/skills/  Skills loaded natively by Claude Code
+skills/          Skills (fallback path)
+AGENTS.md        The environment — primary artefact of this repo
+CLAUDE.md        Symlink → AGENTS.md (Claude Code compatibility)
 ```
 
 ---
@@ -142,7 +153,7 @@ uv run vibecheck .
 # ─────────────────────────────
 # Vibecheck Score: 0.91
 # ├── Security:       1.00  ✓
-# ├── Architecture:   0.88  ✓
+# ├── Architecture:   0.88
 # ├── Testing:        0.91  ✓
 # ├── Compliance:     0.85  ~
 # └── Process:        0.94  ✓
