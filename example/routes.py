@@ -1,12 +1,13 @@
 """
 Example route used for the minimality-check experiment.
-Bug: POST /items returns 200 instead of 201.
+Fix: POST /items correctly returns 201.
 """
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
-@router.post("/items")
+@router.post("/items", status_code=201)
 def create_item(name: str):
-    """Create a new item. Should return 201, but returns 200 (bug)."""
+    """Create a new item. Returns 201 Created."""
     return {"name": name, "created": True}
